@@ -4,13 +4,19 @@ import SessionController from "./app/controllers/SessionController";
 import authMidd from "./app/middlewares/auth";
 import { Router } from "express";
 import User from "./app/models/User";
+import multerConfig from "./config/multer";
+import multer from "multer";
+import FileController from "./app/controllers/FileController";
 //const routes = express.Router();
 const routes = Router();
+const upload = multer(multerConfig);
 
 routes.post("/users", UserController.store);
 routes.post("/sessions", SessionController.store);
 routes.use(authMidd);
 routes.put("/users", UserController.update);
+routes.post("/files", upload.single("file"), FileController.store);
+
 // routes.get("/", (req, res) => {
 //   res.send("Hello World again");
 // });
