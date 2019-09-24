@@ -7,6 +7,7 @@ import User from "./app/models/User";
 import multerConfig from "./config/multer";
 import multer from "multer";
 import FileController from "./app/controllers/FileController";
+import MeetupControler from "./app/controllers/MeetupController";
 //const routes = express.Router();
 const routes = Router();
 const upload = multer(multerConfig);
@@ -15,6 +16,7 @@ routes.post("/users", UserController.store);
 routes.post("/sessions", SessionController.store);
 routes.use(authMidd);
 routes.put("/users", UserController.update);
+routes.post("/meetups", MeetupControler.store);
 routes.post("/files", upload.single("file"), FileController.store);
 
 // routes.get("/", (req, res) => {
