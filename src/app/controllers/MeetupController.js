@@ -1,10 +1,32 @@
 import * as Yup from "yup";
-import { startOfDay, parseISO, isBefore } from "date-fns";
+import { startOfDay, parseISO, isBefore, isAfter } from "date-fns";
 import Meetup from "../models/Meetup";
 import User from "../models/User";
 import File from "../models/File";
 
 class MeetupController {
+  async index(req, res) {
+    const meetups = await Meetup.findAll({
+      where: { user_id: req.userId, canceled_at: null },
+      attributes: ["titulo", "localizacao", "descricao", "date"],
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["name", "email"]
+        }
+      ],
+      include: [
+        {
+          model: File,
+          as: "banner",
+          attributes: ["name", "path"]
+        }
+      ]
+    });
+    return res.json(meetups);
+  }
+
   async store(req, res) {
     const schema = Yup.object().shape({
       titulo: Yup.string().required(),
@@ -14,7 +36,9 @@ class MeetupController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: "validations fails" });
+      return res.status(400).json({
+        error: "validations fails. Review the required fields and try again !!"
+      });
     }
 
     const { titulo, descricao, localizacao, date } = req.body;
@@ -23,7 +47,7 @@ class MeetupController {
     const startDay = startOfDay(parseISO(date));
 
     if (isBefore(startDay, new Date())) {
-      return res.status(400).json({ error: "Date input is past due" });
+      return res.status(400).json({ error: "Date input is past to due" });
     }
 
     const meetup = await Meetup.create({
@@ -36,6 +60,57 @@ class MeetupController {
     });
 
     return res.json(meetup);
+  }
+
+  async delete(req, res) {
+    const meetup = await Meetup.findByPk(req.params.id);
+
+    if (meetup.user_id != req.userId) {
+      return res
+        .status(401)
+        .json({ error: "User does not have permission to do this operation." });
+    }
+
+    await meetup.destroy();
+
+    return res.json({ information: `Meetup deleted id: ${req.params.id}` });
+  }
+
+  async update(req, res) {
+    const meetup = await Meetup.findByPk(req.params.id);
+
+    if (meetup.user_id != req.userId) {
+      return res.status(401).json({
+        error: "You cannot edit a meetup that you are not an organizer."
+      });
+    }
+
+    const meetupDay = startOfDay(parseISO(meetup.date));
+
+    //console.log(isBefore(startDay, new Date()));
+
+    if (isBefore(meetupDay, new Date())) {
+      return res.status(400).json({ error: "You cannot edit a past meetup" });
+    }
+
+    // const { titulo, descricao, localizacao, date } = req.body;
+    const { titulo, descricao, localizacao, date } = await meetup.update(
+      req.body
+    );
+
+    // meetup.titulo = titulo;
+    // meetup.descricao = descricao;
+    // meetup.localizacao = localizacao;
+    // meetup.date = date;
+
+    //await meetup.save();
+
+    return res.json({
+      titulo,
+      descricao,
+      localizacao,
+      date
+    });
   }
 }
 

@@ -17,6 +17,9 @@ routes.post("/sessions", SessionController.store);
 routes.use(authMidd);
 routes.put("/users", UserController.update);
 routes.post("/meetups", MeetupControler.store);
+routes.get("/meetups", MeetupControler.index);
+routes.delete("/meetups/:id", MeetupControler.delete);
+routes.put("/meetups/:id", MeetupControler.update);
 routes.post("/files", upload.single("file"), FileController.store);
 
 // routes.get("/", (req, res) => {

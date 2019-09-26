@@ -8,7 +8,6 @@ class Meetup extends Model {
         descricao: Sequelize.STRING,
         localizacao: Sequelize.STRING,
         date: Sequelize.DATE,
-        hora: Sequelize.TIME,
         canceled_at: Sequelize.DATE
       },
       {
