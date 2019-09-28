@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-import { startOfDay, parseISO, isBefore, isAfter } from "date-fns";
+import { startOfDay, parse, parseISO, isBefore, isAfter } from "date-fns";
 import Meetup from "../models/Meetup";
 import User from "../models/User";
 import File from "../models/File";
@@ -85,9 +85,7 @@ class MeetupController {
       });
     }
 
-    const meetupDay = startOfDay(parseISO(meetup.date));
-
-    //console.log(isBefore(startDay, new Date()));
+    const meetupDay = startOfDay(Date.parse(meetup.date));
 
     if (isBefore(meetupDay, new Date())) {
       return res.status(400).json({ error: "You cannot edit a past meetup" });
