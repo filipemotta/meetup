@@ -39,12 +39,11 @@ class UserController {
         return res.status(401).json({ error: "User already exist" });
       }
     }
-    const { id, name, email } = await User.update(req.body);
+    const { id, name } = await User.update(req.body);
 
     return res.json({
       id,
       name,
-      email
     });
   }
 }
