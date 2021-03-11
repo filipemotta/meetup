@@ -13,3 +13,5 @@ jobs:
       run: yarn
     - name: Buid App
       run: yarn build
+    - name: Test App
+      run: yarn test
